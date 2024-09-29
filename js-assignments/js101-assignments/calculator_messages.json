@@ -1,0 +1,32 @@
+{
+  "en-US": {
+    "messages" : {
+      "welcome": "Welcome to Calculator!",
+      "firstNum": "What's the first number?",
+      "secondNum": "What's the second number?",
+      "operation": "What operation would you like to perform?\n1) Add 2) Subtract 3) Multiply 4) Divide",
+      "repeatCalculation": "Perform again? (Yes/No)"
+    },
+    "errors": {
+      "invalidNumber": "This number doesn't look valid",
+      "invalidOperation": "Invalid input, please choose 1, 2, 3, or 4",
+      "invalidRepeat": "Invalid input, please type Yes or No"
+      
+    }
+  },
+  "en-UK": {
+    "messages" : {
+      "welcome": "Welcome to Calculator!",
+      "firstNum": "What's the first number?",
+      "secondNum": "What's the second number?",
+      "operation": "What operation would you like to perform?\n1) Add 2) Subtract 3) Multiply 4) Divide",
+      "repeatCalculation": "Perform again? (Yes/No)"
+    },
+    "errors": {
+      "invalidNumber": "This number doesn't look valid",
+      "invalidOperation": "Invalid input, please choose 1, 2, 3, or 4",
+      "invalidRepeat": "Invalid input, please type Yes or No"
+      
+    }
+  }
+}

@@ -4,6 +4,9 @@
 // Perform the operation on the two numbers.
 // Print the result to the terminal.
 
+//For Calculator Bonus Features assignment, please see folder:
+// launchSchool/js-assignments/js101-assignments/l2-16-calculator.js
+
 const readline = require("readline-sync");
 
 function prompt(msg) {
