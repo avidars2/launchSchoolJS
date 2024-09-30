@@ -13,17 +13,28 @@ while (repeat) {
 }
 
 function getUserInput() {
-  let APR = (Number(rlSync.question(clc.green('Enter APR (Example: 1.5 would be 1.5%): '))) * .01);
-  let loanAmount = rlSync.question(clc.green('Enter amount borrowed (loan): $'));
-  loanAmount = cleanInput(loanAmount);
+  let APR = (validateInput('Enter APR (Example: 1.5 would be 1.5%): ') * .01);
+  let loanAmount = validateInput('Enter amount borrowed (loan): $');
   console.log('Enter loan duration (Years and Months)');
   let loanDurationTimes = {
-    years: Number(rlSync.question(clc.green('Years: '))),
-    months: Number(rlSync.question(clc.green('Months: ')))
+    years: validateInput('Years: '),
+    months: validateInput('Months: ')
   };
 
   carLoanCalculator(APR, loanAmount, loanDurationTimes);
 
+}
+
+function validateInput(question) {
+  let numberInput;
+  do {
+    numberInput = (cleanInput(rlSync.question(clc.green(question))));
+    if (Number.isNaN(numberInput)) {
+      console.log(clc.red('Invalid Input'));
+    }
+  } while (Number.isNaN(numberInput));
+
+  return numberInput;
 }
 
 function carLoanCalculator(APR, loanAmount, loanYearsMonths) {
@@ -45,7 +56,8 @@ function carLoanCalculator(APR, loanAmount, loanYearsMonths) {
   let convertedMonthlyPayment = convertToUSD(monthlyPayment);
   let convertedTotalPayment = convertToUSD(totalPayment);
 
-  console.log(clc.blue(`Monthly Payment: ${convertedMonthlyPayment}\nTotal Payment: ${convertedTotalPayment}`));
+  console.log(`For APR: ${APR}, Loan: ${convertToUSD(loanAmount)}, Loan Duration: ${loanDuration} months. You have:`);
+  console.log(clc.blue(` Monthly Payment: ${convertedMonthlyPayment}\n Total Payment: ${convertedTotalPayment}`));
 
 }
 
