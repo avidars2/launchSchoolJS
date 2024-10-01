@@ -1,6 +1,5 @@
-const nodeDirectory = "/home/avi/launchSchool/node_modules/";
-const rlSync = require(nodeDirectory + "readline-sync");
-const clc = require(nodeDirectory + "cli-color");
+const rlSync = require("readline-sync");
+const clc = require("cli-color");
 
 
 let repeat = true;
