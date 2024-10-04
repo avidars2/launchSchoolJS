@@ -1,26 +1,57 @@
 const rlSync = require("readline-sync");
 const clc = require("cli-color");
+const USER_PROMPTS = require('./loan_messages_and_inputs.json');
+
+const affirmations = USER_PROMPTS.confirmations.affirmations;
+const declinations = USER_PROMPTS.confirmations.declinations;
 
 
-let repeat = true;
+runProgram();
 
-while (repeat) {
-  console.log(clc.red('\nWelcome to the monthly payment calculator!\n'));
-  getUserInput();
-  repeat = rlSync.question(clc.magenta('Calculate again? (Yes/No): '));
-  repeat = ['Yes', 'yes', 'y'].includes(repeat);
+function runProgram() {
+
+  let repeat = true;
+
+  while (repeat) {
+    console.log(clc.red(USER_PROMPTS.guidanceMessages.welcome));
+    let loanData = getUserInput();
+    let calculatedLoanData = carLoanCalculator(loanData);
+    displayPaymentInfoAsUSD(calculatedLoanData, loanData);
+
+    repeat = checkIfRepeatProgram();
+  }
+
 }
 
+function checkIfRepeatProgram() {
+  let invalidResponse = false;
+  do {
+    let confirmRepeat = rlSync.question(clc.magenta(USER_PROMPTS
+      .guidanceMessages
+      .repeatCalculation));
+    if (affirmations.includes(confirmRepeat.toLowerCase())) {
+      return true;
+    } else if (declinations.includes(confirmRepeat.toLowerCase())) {
+      return false;
+    }
+    console.log(USER_PROMPTS.guidanceMessages.invalidInputYesNo);
+    invalidResponse = true;
+  } while (invalidResponse);
+
+  return false;
+}
+
+
 function getUserInput() {
-  let APR = (validateInput('Enter APR (Example: 1.5 would be 1.5%): ') * .01);
-  let loanAmount = validateInput('Enter amount borrowed (loan): $');
-  console.log('Enter loan duration (Years and Months)');
+  let APR = (validateInput(USER_PROMPTS.functionMessages.enterAPR) * .01);
+  let loanAmount = validateInput(USER_PROMPTS.functionMessages.enterLoan);
+  console.log(USER_PROMPTS.functionMessages.enterLoanDuration);
   let loanDurationTimes = {
     years: validateInput('Years: '),
     months: validateInput('Months: ')
   };
 
-  carLoanCalculator(APR, loanAmount, loanDurationTimes);
+  return {APR, loanAmount, loanDurationTimes};
 
 }
 
@@ -28,36 +59,41 @@ function validateInput(question) {
   let numberInput;
   do {
     numberInput = (cleanInput(rlSync.question(clc.green(question))));
-    if (Number.isNaN(numberInput)) {
-      console.log(clc.red('Invalid Input'));
+    if (Number.isNaN(numberInput) || (numberInput < 0)) {
+      console.log(clc.red(USER_PROMPTS.guidanceMessages.invalidInput));
     }
-  } while (Number.isNaN(numberInput));
+  } while (Number.isNaN(numberInput) || (numberInput < 0));
 
   return numberInput;
 }
 
-function carLoanCalculator(APR, loanAmount, loanYearsMonths) {
-  let loanDuration = ((loanYearsMonths.years * 12) + loanYearsMonths.months);
-  let monthlyInterestRate = (APR / 12);
+function carLoanCalculator(loanData) {
+  const monthsInAYear = 12;
+  let loanDuration = ((loanData.loanDurationTimes.years * monthsInAYear)
+   + loanData.loanDurationTimes.months);
+  let monthlyInterestRate = (loanData.APR / monthsInAYear);
 
   let monthlyPayment;
   let totalPayment;
   if (monthlyInterestRate !== 0) {
-    monthlyPayment = (loanAmount * (monthlyInterestRate /
+    monthlyPayment = (loanData.loanAmount * (monthlyInterestRate /
       (1 - Math.pow((1 + monthlyInterestRate), (-loanDuration)))));
 
     totalPayment = monthlyPayment * loanDuration;
   } else {
-    monthlyPayment = loanAmount / loanDuration;
+    monthlyPayment = loanData.loanAmount / loanDuration;
     totalPayment = monthlyPayment * loanDuration;
   }
 
-  let convertedMonthlyPayment = convertToUSD(monthlyPayment);
-  let convertedTotalPayment = convertToUSD(totalPayment);
+  return {monthlyPayment, totalPayment, loanDuration};
+}
 
-  console.log(`For APR: ${APR}, Loan: ${convertToUSD(loanAmount)}, Loan Duration: ${loanDuration} months. You have:`);
+function displayPaymentInfoAsUSD(calculatedLoanData, loanData) {
+  let convertedMonthlyPayment = convertToUSD(calculatedLoanData.monthlyPayment);
+  let convertedTotalPayment = convertToUSD(calculatedLoanData.totalPayment);
+
+  console.log(`For APR: ${loanData.APR}, Loan: ${convertToUSD(loanData.loanAmount)}, Loan Duration: ${calculatedLoanData.loanDuration} months. You have:`);
   console.log(clc.blue(` Monthly Payment: ${convertedMonthlyPayment}\n Total Payment: ${convertedTotalPayment}`));
-
 }
 
 function convertToUSD(monthlyPayment) {

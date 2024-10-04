@@ -1,0 +1,17 @@
+{
+  "guidanceMessages": {
+    "welcome": "\n\n\n\n\n\n\n\n\n\nWelcome to the monthly payment calculator!\n\n",
+    "repeatCalculation": "Calculate again? (Yes/No): ",
+    "invalidInput": "Invalid Input",
+    "invalidInputYesNo" : "Invalid input, enter Yes/y or No/n"
+  },
+  "functionMessages": {
+    "enterAPR": "\nEnter APR (Example: 1.5 would be 1.5%): ",
+    "enterLoan": "\nEnter amount borrowed (loan): $",
+    "enterLoanDuration": "\nEnter loan duration (Years and Months)"
+  },
+  "confirmations": {
+  "affirmations": ["y", "yes"],
+  "declinations": ["n", "no"]
+  }
+}
