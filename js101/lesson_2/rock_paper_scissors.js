@@ -1,7 +1,9 @@
 const readline = require('readline-sync');
-const USER_CHOICES = {rock: ['r' , 'rock'], paper: ['p', 'paper' ], 
+const USER_CHOICES = {rock: ['r' , 'rock'], paper: ['p', 'paper' ],
   scissors: ['sc', 'scissors'], lizard: ['l', 'lizard'], spock: ['sp', 'spock']};
 const VALID_CHOICES = Object.keys(USER_CHOICES);
+const score = {player: 0, computer: 0, ties: 0};
+let autoPlay = false;
 
 function prompt(message) {
   console.log(`=> ${message}`);
@@ -17,16 +19,18 @@ function displayWinner(outcome) {
   } else {
     prompt('Tie!');
   }
+
+  prompt(`You: ${score.player} | Computer: ${score.computer} | Draws: ${score.ties}`);
 }
 
 function decideWinner(choice, computerChoice) {
   let outcome = {choice, computerChoice, result: ''};
-    if (((choice === 'rock' || choice === 'spock') && computerChoice === 'scissors') ||
-      ((choice === 'paper' || choice === 'spock') && computerChoice === 'rock') ||
-      ((choice === 'scissors' || choice === 'lizard') && computerChoice === 'paper') ||
-      ((choice === 'rock' || choice === 'scissors') && computerChoice === 'lizard') ||
-      ((choice === 'paper' || choice === 'lizard') && computerChoice === 'spock')) {
-      outcome.result = 'win';
+  if (((choice === 'rock' || choice === 'spock') && computerChoice === 'scissors') ||
+    ((choice === 'paper' || choice === 'spock') && computerChoice === 'rock') ||
+    ((choice === 'scissors' || choice === 'lizard') && computerChoice === 'paper') ||
+    ((choice === 'rock' || choice === 'scissors') && computerChoice === 'lizard') ||
+    ((choice === 'paper' || choice === 'lizard') && computerChoice === 'spock')) {
+    outcome.result = 'win';
   } else if (choice === computerChoice) {
     outcome.result = 'tie';
   } else {
@@ -36,6 +40,16 @@ function decideWinner(choice, computerChoice) {
   return outcome;
 }
 
+function updateScoreboard(result) {
+  if (result === 'win') {
+    score.player += 1;
+  } else if (result === 'loss') {
+    score.computer += 1;
+  } else if (result === 'tie') {
+    score.ties += 1;
+  }
+}
+
 while (true) {
   prompt(`Choose one: ${VALID_CHOICES.join(', ')}`);
   let choice = readline.question();
@@ -43,7 +57,7 @@ while (true) {
 
   Object.values(USER_CHOICES).forEach(choiceList => {
     choiceValues = choiceValues.concat(choiceList);
-  })
+  });
 
   while (!Object.values(choiceValues).includes(choice)) {
     prompt("That's not a valid choice");
@@ -60,38 +74,27 @@ while (true) {
   let randomIndex = Math.floor(Math.random() * VALID_CHOICES.length);
   let computerChoice = VALID_CHOICES[randomIndex];
 
-  let result = decideWinner(choice, computerChoice);
-  displayWinner(result);
+  let outcome = decideWinner(choice, computerChoice);
+  updateScoreboard(outcome.result);
+  displayWinner(outcome);
 
-  prompt('Do you want to play again (y/n)?');
-  let answer = readline.question().toLowerCase();
-  while (answer[0] !== 'n' && answer[0] !== 'y') {
-    prompt('Please enter "y" or "n".');
-    answer = readline.question().toLowerCase();
+  if (score.player === 3 || score.computer === 3) {
+    let grandWinner = score.player === 3 ? 'You are' : 'Computer is';
+    prompt(`${grandWinner} the grand winner!`);
+    break;
   }
 
-  if (answer[0] !== 'y') break;
+  if (!autoPlay) {
+    prompt('Do you want to play again (y/n)? (type "a" to play until grand winner [3 wins])');
+    let answer = readline.question().toLowerCase();
+    while (answer[0] !== 'n' && answer[0] !== 'y' && answer[0] !== 'a') {
+      prompt('Please enter "y" or "n" or "a".');
+      answer = readline.question().toLowerCase();
+    }
+
+    if (answer[0] !== 'y' && answer[0] !== 'a') break;
+    if (answer[0] === 'a') {
+      autoPlay = true;
+    }
+  }
 }
-
-/**
- * Things to consider
-Notice how the displayWinner function calls the prompt function. 
-What happens if you move the displayWinner function definition above the prompt function definition? Does it still work?
--Yes - because it is a function declaration and not a function expression it may be called from anywhere that is within it's scope
-
-How would you use the displayWinner function differently if it returned a string, as opposed to outputting the string directly?
--The return value could be assigned to a variable and logged within the while loop
-
-We used the Math object to generate a random number and round down a floating point number. 
-Skim through the documentation for the Math object and see what other methods from the object you may find useful. 
-Specifically, read the pages for Math.round and Math.ceil. 
-How would you rewrite the random index expression if you were to use one of these two methods instead of Math.floor?
--  let randomIndex = Math.floor(Math.random() * VALID_CHOICES.length);
--  let randomIndex = (Math.ceil(Math.random() * VALID_CHOICES.length)) - 1;
-
-We used a while loop with an always-true condition and a break statement to decide whether to replay the game. 
-Can you rewrite the loop so that we don't need to use the break statement to stop the loop?
--let continue = true;
--while (continue)
--  if (answer[0] !== 'y') continue = false;
- */
