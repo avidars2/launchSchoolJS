@@ -114,3 +114,7 @@ function isOdd(integer) {
     return true;
   } else return false;
 }
+
+function isOddImproved(integer) {
+  return Math.abs(integer) % 2 === 1;
+}
