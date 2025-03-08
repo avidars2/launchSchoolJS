@@ -219,6 +219,7 @@ function gameLoop(gameData) {
      */
 
     console.log('Turn: ' + turn + '\n');
+
     let currentPlayer = turn % 2 === 0 ? 'human' : 'computer';
     let currentMarker = currentPlayer === 'human' ? HUMAN_MARKER : COMPUTER_MARKER;
     let move = chooseSquareGeneric(validMoves, currentPlayer);
@@ -358,6 +359,9 @@ function calculateBestMove(strategy) {
 }
 
 function chooseSquareHuman(validMoves) {
+
+  console.log(`Valid Moves: ${joinOr(validMoves)}`);
+  console.log(`Your token is: ${HUMAN_MARKER}`);
   let playerMove = rlSync.question('Enter Number You would like to place ');
   while (!validMoves.includes(playerMove)) {
     console.log('Invalid Move');
