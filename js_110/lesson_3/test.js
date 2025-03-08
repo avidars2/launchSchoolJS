@@ -52,9 +52,31 @@ function joinOr(arr, delimiter=', ', conjunction='or') {
  return newStr;
 }
 
-console.log(joinOr([1, 2, 3]));               // => "1, 2, or 3"
-console.log(joinOr([1, 2, 3], '; '));         // => "1; 2; or 3"
-console.log(joinOr([1, 2, 3], ', ', 'and'));  // => "1, 2, and 3"
-console.log(joinOr([]));                      // => ""
-console.log(joinOr([5]));                     // => "5"
-console.log(joinOr([1, 2]));                  // => "1 or 2"
+// console.log(joinOr([1, 2, 3]));               // => "1, 2, or 3"
+// console.log(joinOr([1, 2, 3], '; '));         // => "1; 2; or 3"
+// console.log(joinOr([1, 2, 3], ', ', 'and'));  // => "1, 2, and 3"
+// console.log(joinOr([]));                      // => ""
+// console.log(joinOr([5]));                     // => "5"
+// console.log(joinOr([1, 2]));                  // => "1 or 2"
+
+/** Keep Score
+ * 
+ * Explicits:
+ * 1. Keep track of how many times the player and computer each win
+ * 2. Report score after each game
+ * 3. First to win x amount of games wins the overall match
+ * 4. After a match, score should reset to 0
+ * 
+ * Implicits:
+ * 1. A match will be first to x wins
+ * 
+ * 
+ * Player wins 4 times, computer wins 4
+ * Score: 4 | 4
+ * 
+ * Player wins 5th time
+ * 
+ * Score: 5 | 4 - Player wins match!
+ * Matches Won: 1 (Player) | 0 (Computer)
+ * Score is reset to 0
+ */
