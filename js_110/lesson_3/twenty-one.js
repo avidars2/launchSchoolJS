@@ -91,7 +91,7 @@ function gameSetup() {
     gamble: false,
     startingAmount: 0,
   }
-  let play = rlSync.question('Play twenty-one? [y/n]');
+  let play = yesOrNo('Play twenty-one?');
   
   if (play.toLowerCase() === 'n') {
     console.log('Goodbye!');
@@ -104,24 +104,68 @@ function gameSetup() {
 function gameLoop(setup) {
 
   while (true) {
+    console.log(`Score: Player: ${setup.playerScore} | Dealer: ${setup.dealerScore}`);
     let [hands, deckOfCards] = setupCards();
+    let bust = false;
     console.log('Dealer Cards: ' + hands.dealer[0] + ' & ?');
     while (true) {
-      console.log(`Your hand: ${hands.player.join(', ')}`);
-      console.log(`Total Value: ${evaluateCards(hands.player)}`);
+      console.log(`Your hand: ${hands.player.join(', ')} | Total Value: ${evaluateCards(hands.player)}`);
+      // console.log(`Total Value: ${evaluateCards(hands.player)}`);
       let move = getPlayerMove();
       if (move === 'hit' || move === 'h') {
         hit(deckOfCards, 'player', hands);
         if (evaluateCards(hands.player) > 21) {
-          roundLoss('player', hands); //Example function, I can change this
-          console.log(evaluateCards(hands.player));
+          roundWin(setup, 'dealer', hands, 'Player Busted!'); //Example function, I can change this
+          bust = true;
           break;
         }
       } else break;
     }
-    break;
-  }
+    while (!bust) {
+      //Dealer moves
+      //Reveal dealer hand
+      //Evaluate hand
+      //While total < 17 hit
+      //Repeat eval/hit cycle
+      //If final eval > 21
+      //execute player win
+      console.log(`Dealer's turn!`);
+      console.log(`Dealer Cards: ${hands.dealer.join(', ')} | Total Value: ${evaluateCards(hands.dealer)}`);
+      while (evaluateCards(hands.dealer) < 17) {
+        hit(deckOfCards, 'dealer', hands);
+        console.log('Dealer hits...')
+        console.log(`Dealer Cards: ${hands.dealer.join(', ')} | Total Value: ${evaluateCards(hands.dealer)}`);
+      }
+      if (evaluateCards(hands.dealer) > 21) {
+        roundWin(setup, 'player', hands, 'Dealer Busted!');
+        bust = true;
+      }
+      break;
+    }
+    
+    let [playerValue, dealerValue] = [evaluateCards(hands.player), evaluateCards(hands.dealer)];
+    
+    if (!bust) {
+      if (playerValue > dealerValue) {
+        roundWin(setup, 'player', hands, 'Player cards are higher than dealer!');
+      } else if (dealerValue > playerValue) {
+        roundWin(setup, 'dealer', hands, 'Dealer cards are higher than player!');
+      } else roundDraw(setup);
+    }
 
+    //Compare and evaluate cards
+    //If player > dealer, player win
+    //Else dealer win
+
+    //Execute roundWin
+
+    let playNextRound = yesOrNo('Play next round?');
+    if (playNextRound) {
+      continue;
+    } else break;
+    //Play another round?
+    //If no break and goodbye
+  }
 }
 
 function getPlayerMove() {
@@ -135,8 +179,33 @@ function getPlayerMove() {
   return move.toLowerCase();
 }
 
-function roundLoss(user) {
+function yesOrNo(message) {
+  let yesNo = rlSync.question(message + ' [y/n]: ');
+  let validChoices = ['yes', 'no', 'y', 'n'];
+  while (!validChoices.includes(yesNo.toLowerCase())) {
+    console.log('Invalid option, try again.');
+    yesNo = rlSync.question('Enter yes or no: ');
+  }
 
+  return yesNo.toLowerCase();
+}
+
+function roundWin(setup, user, hands, reason) {
+  //Update score
+  //Display reason
+  let userScoreToUpdate = user + 'Score';
+  setup[userScoreToUpdate] += 1;
+
+  console.log(`Final hands: \nPlayer: ${hands.player.join(', ')} Value: ${evaluateCards(hands.player)}\n` +
+  `Dealer: ${hands.dealer.join(', ')} Value: ${evaluateCards(hands.dealer)}`);
+  console.log(`${user === 'player' ? 'Player' : 'Dealer'} wins! ${reason}`);
+  console.log(`Score: Player: ${setup.playerScore} | Dealer: ${setup.dealerScore}`);
+}
+
+function roundDraw(setup) {
+  console.log('Player and Dealer cards are equal!');
+  console.log('Draw!');
+  console.log(`Score: Player: ${setup.playerScore} | Dealer: ${setup.dealerScore}`);
 }
 
 function setupCards() {
@@ -149,7 +218,6 @@ function setupCards() {
   sortCards(deckOfCards);
   dealStartingCards(deckOfCards, hands);
 
-  console.log(hands);
   return [hands, deckOfCards];
 }
 
