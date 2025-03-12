@@ -4,6 +4,7 @@ let fibArray = [1, 1];
 //If fibArray length === nth, access fibArray[nth - 1] value
 
 function fibonacci(nth) {
+  if (fibArray.length )
   if (nth === 2 || nth === 1) {
     return 1;
   }
