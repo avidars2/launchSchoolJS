@@ -127,8 +127,8 @@ function dealerTurn(setup, deckOfCards, hands) {
     console.log('~'.repeat(30) + `\nDealer's turn!`);
     console.log(`Dealer Cards: ${hands.dealer.join(', ')} | Total Value: ${dealerValue}`);
     while (dealerValue < DEALER_LIMIT[0]) {
-      dealerValue = evaluateCards(hands.dealer);
       hit(deckOfCards, 'dealer', hands);
+      dealerValue = evaluateCards(hands.dealer);
       console.log('Dealer hits...');
       console.log(`Dealer Cards: ${hands.dealer.join(', ')} | Total Value: ${dealerValue}`);
     }
