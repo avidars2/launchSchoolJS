@@ -6,8 +6,6 @@
  */
 let rlSync = require('readline-sync');
 
-
-
 function getDeckOfCards() {
   let baseCardVals = '123456789JQKA'
   let deckOfCards = baseCardVals.split('').map(cardVal => {
@@ -81,7 +79,6 @@ function evaluateCards(cardArr) {
 
 // evaluateCards(['C-4', 'D-J', 'C-9', 'H-2', 'S-5', 'C-A', 'C-A'])
 
-
 // evaluateCards(['C-4', 'S-5', 'C-A', 'C-A'])
 
 function gameSetup() {
@@ -104,12 +101,15 @@ function gameSetup() {
 function gameLoop(setup) {
 
   while (true) {
+    console.log('-'.repeat(30));
     console.log(`Score: Player: ${setup.playerScore} | Dealer: ${setup.dealerScore}`);
+    console.log('-'.repeat(30));
     let [hands, deckOfCards] = setupCards();
     let bust = false;
     console.log('Dealer Cards: ' + hands.dealer[0] + ' & ?');
     while (true) {
       console.log(`Your hand: ${hands.player.join(', ')} | Total Value: ${evaluateCards(hands.player)}`);
+      console.log('='.repeat(20));
       // console.log(`Total Value: ${evaluateCards(hands.player)}`);
       let move = getPlayerMove();
       if (move === 'hit' || move === 'h') {
@@ -129,6 +129,7 @@ function gameLoop(setup) {
       //Repeat eval/hit cycle
       //If final eval > 21
       //execute player win
+      console.log('~'.repeat(30));
       console.log(`Dealer's turn!`);
       console.log(`Dealer Cards: ${hands.dealer.join(', ')} | Total Value: ${evaluateCards(hands.dealer)}`);
       while (evaluateCards(hands.dealer) < 17) {
@@ -140,6 +141,7 @@ function gameLoop(setup) {
         roundWin(setup, 'player', hands, 'Dealer Busted!');
         bust = true;
       }
+      console.log('~'.repeat(30));
       break;
     }
     
