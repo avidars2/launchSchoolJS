@@ -5,3 +5,8 @@ function isNonAlphaNumeric(str) {
 }
 
 console.log(isNonAlphaNumeric('.'));
+
+const arrayLikeObject = { 0: "x", 1: "y", length: 2 };
+const arr1 = Array.from(arrayLikeObject);
+arr1.push("z");
+console.log(arr1);
