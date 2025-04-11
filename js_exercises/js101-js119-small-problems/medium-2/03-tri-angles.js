@@ -1,3 +1,4 @@
+function solution1() {
 /**
  * Definitions:
  * Right: One angle is exactly 90 degrees
@@ -83,3 +84,23 @@ triangle(30, 90, 60);       // "right"
 triangle(120, 50, 10);      // "obtuse"
 triangle(0, 90, 90);        // "invalid"
 triangle(50, 50, 50);       // "invalid"
+
+}
+
+
+function solution2() {
+
+  /**
+   * A right triangle has one angle exactly 90 degrees
+   * Acute: All 3 angles are less than 90 degrees
+   */
+
+triangle(60, 70, 50);       // "acute"
+triangle(30, 90, 60);       // "right"
+triangle(120, 50, 10);      // "obtuse"
+triangle(0, 90, 90);        // "invalid"
+triangle(50, 50, 50);       // "invalid"
+
+}
+
+solution2();
