@@ -4,8 +4,7 @@ P:The maximum sum subarray problem consists in finding the maximum sum of a cont
  If the array is made up of only negative numbers, return 0 instead.
  */
 
-const { to } = require("cli-color/move");
-
+ function solution1() {
  /**
 I: Array of integers
 O: Maximum sum of contiguous subsequence of integers
@@ -95,3 +94,85 @@ console.log(maxSequence([-32]) === 0); // true
 console.log(maxSequence([-2, 1, -7, 4, -10, 2, 1, 5, 4]) === 12); // true
 
 //Solved in 24.6 minutes
+
+ }
+
+
+
+/**
+The maximum sum subarray problem consists in finding the maximum sum of a contiguous subsequence in an array of integers:
+ maxSequence([-2, 1, -3, 4, -1, 2, 1, -5, 4]) -- should be 6: [4, -1, 2, 1]
+ If the array is made up of only negative numbers, return 0 instead.
+ */
+
+/**
+ * I: Array of integers
+ * O: Highest sum of a contiguous subsequence
+ * 
+ * Explicits:
+ * 1. If the array is made up of only negative numbers, return 0 instead
+ * Implicits:
+ * 1. If array is empty, return 0
+ * 
+ * [11] --> 1
+ * [-2, 1, -7, 4, -10, 2, 1, 5, 4]
+ * -2, 1 --> -1
+ * -2, 1, -7 -- -8
+ * 
+ * 1, -7, 4, - 10
+ * 
+ * Iterate through an array of integers
+ * For each number, check sum of each combination of array
+ * lengths from current iteration, and return the highest evaluation
+ * 
+ * Data structures:
+ * 1. Array
+ * 2. Array [highest sums I find]
+ * 3. Same collection iteration, expanding array
+ * 
+ * Algorithm:
+ * --Highest numbers found [] [-2, 1, -3, 4, -1, 2, 1, -5, 4]
+ * --If all numbers in array are negative && if array is emptpy, return 0
+ * ---Filter array out of negative numbers and return 0 if length is 0
+ * 1. For each number in array
+ * 2. Start a new loop from that number through the remaining elements in the array [-2]
+ * - On each iteration, evaluate the sum of the starting number, up to the next element
+ * --Push that sum in a temporaray array/ assign it to a variable (If new sum > current, re-assign)
+ * --Repeat until end
+ * 3. Return the highest sum found
+ */
+
+function maxSequence(intArray) {
+    if (intArray.filter(el => el > 1).length === 0 ) return 0;
+    let highestValueFound = -Infinity;
+
+    intArray.forEach((num, idx) => {
+        for (let x = idx; x < intArray.length; x++) {
+            let currentSlice = intArray.slice(idx, x + 1);
+            // console.log(currentSlice);
+            let total = getSumOfArray(currentSlice);
+            if (total > highestValueFound) {
+                highestValueFound = total;
+            }
+        }
+    })
+    
+    return highestValueFound;
+
+}
+
+function getSumOfArray(arr) {
+    // console.log(arr);
+    return arr.reduce((acc, el) => acc + el);
+}
+
+
+  // // Test Cases
+console.log(maxSequence([]) === 0); // true
+console.log(maxSequence([-2, 1, -3, 4, -1, 2, 1, -5, 4]) === 6); // true
+console.log(maxSequence([11]) === 11); // true
+console.log(maxSequence([-32]) === 0); // true
+console.log(maxSequence([-2, 1, -7, 4, -10, 2, 1, 5, 4]) === 12); // true
+
+
+//Solved in 18.5 minutes

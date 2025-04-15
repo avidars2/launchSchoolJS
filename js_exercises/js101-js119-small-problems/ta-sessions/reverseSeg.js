@@ -1,5 +1,6 @@
 
-//  Given an array of numbers and a segment length k, reverse every consecutive segment of k elements. If the last segment is shorter than k, leave it unchanged. Do not use the reverse function/method. -- Generosa
+//  Given an array of numbers and a segment length k, reverse every consecutive segment of k elements. 
+// If the last segment is shorter than k, leave it unchanged. Do not use the reverse function/method. -- Generosa
 
 // Test cases
 console.log(reverseSegments([1, 2, 3, 4, 5, 6], 3)); // [3, 2, 1, 6, 5, 4]
