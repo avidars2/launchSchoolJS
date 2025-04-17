@@ -1,3 +1,4 @@
+function solution1() {
 /**
  * Given an array of strings made only from lowercase letters,
  * return an array of all characters that show up in all strings within the given array (including duplicates)
@@ -130,7 +131,7 @@ commonChars(['bella', 'label', 'roller']) //['e', 'l', 'l']
 commonChars(['cool', 'lock', 'cook']) //['c', 'o']
 commonChars(['hello', 'goodbye', 'booya', 'random']) //['o']
 commonChars(['aabbaaaa','ccddddd', 'eeffee', 'ggrrrrr', 'yyyzzz']) //[]
-
+}
 /**
  * A double loop is iterating through 2 collections at once
  * The top loop iterates through one collection
@@ -226,3 +227,150 @@ function printPyramid(num) {
     }
     
 }
+
+
+/**
+ * Given an array of strings made only from lowercase letters,
+ * return an array of all characters that show up in all strings within the given array (including duplicates)
+ * For example, if a character occurs 3 times in all strings but not 4 times, you need to
+ * include that character three times in the final answer
+ */
+
+/**
+ * I: Array of strings all lowercase
+ * O: New array of all characters that show up in all strings within the given array (including duplicates)
+ * 
+ * 1. Explicits:
+ * -Example: If character occurs 3 times in all strings 3 times but not 4 times, include character
+ * 3 times in final answer
+ * 
+ * ['a', 'b'] --> [] //Because no common characters
+ * ['ab', 'bc'] --> ['b'] //Because b is the common character
+ * ['bella', 'label', 'roller'] --> ['e', 'l', 'l'] -->E appears once in each string, l appears at least twice in all strings
+ * 
+ * bella
+ * Start with 'b' --> label has 1 b and roller has 0 b's
+ * --B is not included
+ * 
+ * 'e' --> label has 1 'e', roller has 1 'e'
+ * ---After a character is counted, it needs to be not counted again
+ * ---Duplicate the strings, and then count mutate them each time a character is found
+ * 
+ * bella, iterate through the remaining copy of the slice of the array
+ * 
+ * ['a'] //for arrays that are length of 1, just return the string
+ * //If length is 0, return an empty array
+ * starting word = arr[0] //'bella'
+ * remainingArr = arr.slice(1);  ['label', 'roller']
+ * Iterate through remainingArray 
+ * Check if label includes 'b', it does
+ * ---Remove 'b' from label so that now it is 'lael'
+ * Roller has no 'b', so no modification but also 'b' is false for being in everythings
+ * 
+ * Now check 'e'
+ * ---e is in lael, so remove e, --> lal
+ * ---e is in roller so remove e --> rollr
+ * Because e is in all strings, push 'e' into a new array ['e']
+ * 
+ * l
+ * --l l is in lael, so remove first l found --> al
+ * --l is in rollr, so remove first l found --> rolr
+ * Because l is in all, push 'l' --> ['e', 'l']
+ * 
+ * I am iterating through an array, and finding all the characteres
+ * which appear in every string.
+ * 
+ * DS:
+ * 1. Array of lowercase letters
+ * 2. Array to hold found common characters
+ * 3. Array to iterate through
+ * 
+ * Algorithm:
+ * 1. Take first word from array, compareWord = arr[0]
+ * 2. Take remainder of array, remainingStrings = arr.slice(1);
+ * 3. Iterate over each character of compareWord
+ * --For each character, check if this character is in each of the remaining words
+ * --If NOT, set allChars to false and break the loop, continue to next character of compareWord
+ * --If yes, remove character from compareWords
+ * ----find the index of the character in the compareWord
+ * ----'hello', findIndex 'l', splice 'l', rejoin into string
+ * --If yes to all characters, then allChars remains true
+ * 4. if allChars is true, push current character into commonCharsArray
+ * 5. Repeat and return commonCharsArray
+ * 
+ */
+
+function commonChars(arr) {
+    if (arr.length === 0) return [];
+    if (arr.length === 1) return arr;
+
+    let compareWord = arr[0];
+    let remainingStrings = arr.slice(1);
+
+    let commonLetters = [];
+
+    for (let char = 0; char < compareWord.length; char++) {
+        let currentChar = compareWord[char];
+        // console.log(remainingStrings);
+        let pushWord = true;
+        for (let str = 0; str < remainingStrings.length; str++) {
+            let currentStr = remainingStrings[str];
+            // console.log(currentStr, currentChar);
+            if (currentStr.includes(currentChar)) {
+                let replacementString = removeChar(currentStr, currentChar);
+                // console.log('replacement string:', replacementString);
+                remainingStrings[str] = replacementString;
+            } else pushWord = false;
+
+        }
+        if (pushWord) commonLetters.push(currentChar);
+
+    }
+
+    console.log(commonLetters);
+    return commonLetters;
+}
+
+
+function removeChar(str, char) {
+    let strArr = str.split('')
+    // console.log('removeChar', strArr)
+    let indexToRemove = strArr.findIndex(letter => letter === char);
+    strArr.splice(indexToRemove, 1);
+    // console.log(strArr.join(''));
+    return strArr.join('');
+
+}
+
+removeChar('hello', 'l');
+
+// function commonChars(arr) { //Doesn't work
+//     let strObj = {};
+
+//     let commonChars = [];
+
+//     arr.forEach(str => {
+//         str.split('').forEach(char => {
+//             strObj[char] = (strObj[char] ?? 0) + 1;
+//         })
+//     })
+
+//     for (let keys in strObj) {
+//         let currentCount = strObj[keys];
+
+//         if ((currentCount % arr.length) === 0) {
+//             commonChars.push(keys);
+//         }
+//     }
+
+//     // console.log(commonChars)
+// }
+
+// commonChars(['a', 'b']) //[]
+commonChars(['ab', 'bc']) //['b']
+commonChars(['bella', 'label', 'roller']) //['e', 'l', 'l']
+commonChars(['cool', 'lock', 'cook']) //['c', 'o']
+commonChars(['hello', 'goodbye', 'booya', 'random']) //['o']
+commonChars(['aabbaaaa','ccddddd', 'eeffee', 'ggrrrrr', 'yyyzzz']) //[]
+
+//Solved in 27 minutes

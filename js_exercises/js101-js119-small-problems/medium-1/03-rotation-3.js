@@ -95,7 +95,7 @@ function maxRotation(num) {
   function maxRotation(num) {
     let numLength = String(num).length;
     for (let digit = 0; digit < numLength; digit++) {
-      num = rotateRightmostDigits(newNumber, numLength - digit);
+      num = rotateRightmostDigits(num, numLength - digit);
     }
     return num;
   }
