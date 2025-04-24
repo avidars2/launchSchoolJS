@@ -100,7 +100,7 @@ function SmartPhone(brand, model, releaseYear) {
 let galaxy = new SmartPhone('Samsung', 'Galaxy S21', 2021);
 let iPhone = new SmartPhone('Apple', 'iPhone 12', 2020);
 
-console.log(galaxy, iPhone)
+console.log(galaxy, iPhone);
 
 galaxy.checkBattery();
 galaxy.checkInfo();
