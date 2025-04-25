@@ -1,36 +1,18 @@
 const rlSync = require('readline-sync');
-/**
-Keeping score
-Right now, the game doesn't have any dramatic flair.
-It would be more interesting if we were playing up to, say, 5 points.
-Whoever reaches 5 points first wins. Can you build this functionality?
-We have a new noun -- a score.
-Is that a new object type, or a state of an existing class?
-Explore both options and see which works better.
- */
-/**
- * Score could be part of 'createPlayer' state passed to each subType
- * Player type (move, score) --> human and computer
- */
-/**
- * Keep track of a history of moves
-As long as the user doesn't quit, keep track of a history of
-moves by both the human and computer.
-Which data structure will you use? Will you use a new object or an existing
-object?
-How will you display it?
 
-Nouns:
-1. Moves
-2.
- */
 function createPlayer() {
   return {
     move: null,
     moves: [],
     score: 0,
     wins: 0,
-
+    choiceObj: {
+      r: 'rock',
+      p: 'paper',
+      sc: 'scissors',
+      l: 'lizard',
+      sp: 'spock',
+    },
     resetScore() {
       this.score = 0;
     }
@@ -41,23 +23,17 @@ function createHuman() {
   let playerObject = createPlayer();
 
   let humanObject =  {
-
     choose() {
-      const choices = ['rock', 'paper', 'scissors', 'lizard', 'spock'];
-      const choiceObj = {
-        r: 'rock',
-        p: 'paper',
-        sc: 'scissors',
-        l: 'lizard',
-        sp: 'spock',
-      };
+      const choices = Object.values(this.choiceObj);
       let choice;
       while (true) {
-        choice = rlSync.question(`Please choose ${choices.join(', ')} or shorthand ${Object.keys(choiceObj).join(', ')}:\n`);
-        if (choices.includes(choice.toLowerCase()) || Object.keys(choiceObj).includes(choice.toLowerCase())) break;
+        choice = rlSync.question(`Please choose ${choices.join(', ')} or shorthand ${Object.keys(this.choiceObj).join(', ')}:\n`);
+        if (choices.includes(choice.toLowerCase()) ||
+        Object.keys(this.choiceObj).includes(choice.toLowerCase())) break;
         console.log('Invalid choice, pick again');
       }
-      this.move = choice.length < 3 ? choiceObj[choice.toLowerCase()] : choice.toLowerCase();
+      this.move = choice.length < 3 ? this.choiceObj[choice.toLowerCase()] :
+        choice.toLowerCase();
       this.moves.push([this.move]);
     },
   };
@@ -79,19 +55,20 @@ function createComputer() {
       {}),
     winRates: null,
     distribution: null,
+    isAI: true,
     choose() {
       if (this.moves.length % 5 === 0) {
         this.updateWinRates();
         this.adjustWeights();
         this.calculateChoiceDistribution();
         // console.log('win rates:', this.winRates);
-        console.log('Choice weights: ', this.choiceWeights);
+        // console.log('Choice weights: ', this.choiceWeights);
       }
       let choice;
       const choices = [...choicesArr];
       let randomPercent = (Math.random());
       //Object values of distribution [0, 16, 40, etc.]
-      //find index where random percent <= distribution
+      //find index where random percent<= distribution
       // console.log(this.distribution);
       let choiceIdx = this.distribution.findIndex((num) => randomPercent <= num);
       choice = choices[choiceIdx];
@@ -153,6 +130,14 @@ function createComputer() {
         previousMove = move;
       }
       this.distribution = Object.values(distribution);
+    },
+    displayChoiceWeights() {
+      let choicePercentObj = JSON.parse(JSON.stringify(this.choiceWeights));
+      for (let move in choicePercentObj) {
+        choicePercentObj[move] *= 100;
+        choicePercentObj[move] = `${choicePercentObj[move].toFixed(2)}%`;
+      }
+      console.log(choicePercentObj);
     }
   };
 
@@ -162,48 +147,77 @@ function createComputer() {
 const RPSGame = {
   human: createHuman(),
   computer: createComputer(),
-  maxScore: 2,
+  maxScore: 3,
   roundWinner: null,
+  cheats: false,
 
   displayWelcomeMessage() {
     console.log('Welcome to RPS!');
+  },
+  displayGoodbyeMessage() {
+    console.log('Thanks for playing RPS! Goodbye!');
   },
   displayRoundWinner() {
     let humanMove = this.human.move;
     let computerMove = this.computer.move;
 
-    console.log(`You chose: ${this.human.move}`);
-    console.log(`Computer chose: ${this.computer.move}`);
+    console.log(`You chose: ${this.human.move} | Computer chose: ${this.computer.move}`);
 
     let winner = this.whichMoveWon(humanMove, computerMove);
 
     if (winner === 'move1') {
-      console.log('You win this round!');
+      console.log(`${this.human.move.toUpperCase()} beats ${this.computer.move.toUpperCase()}! You win this round!\n`);
       this.roundWinner = 'human';
     } else if (winner === 'move2') {
-      console.log('Computer wins this round!');
+      console.log(`${this.computer.move.toUpperCase()} beats ${this.human.move.toUpperCase()}! Computer wins this round!\n`);
       this.roundWinner = 'computer';
     } else {
-      console.log("It's a tie");
+      console.log("It's a tie\n");
       this.roundWinner = null;
     }
+  },
+  displayScore() {
+    console.log(`Player Score: ${this.human.score} | Computer Score: ${this.computer.score}`);
+  },
+  displayGameWinner() {
+    console.log(`\n${this.checkGameWinner()} wins!\n`);
+    console.log(`Your wins: ${this.human.wins} | Computer wins: ${this.computer.wins}`);
+  },
+  displayMoveHistory() {
+    console.log(`\nHuman move history: ${this.human.moves.slice(-5).map(el => el[0]).join(', ')}`);
+    console.log(`Computer move history: ${this.computer.moves.slice(-5).map(el => el[0]).join(', ')}\n`);
+  },
+  checkGameWinner() {
+    if (this.human.score === this.maxScore) return 'Human';
+    if (this.computer.score === this.maxScore) return 'Computer';
+    return '';
   },
   updatePlayerScores() {
     if (this.roundWinner === 'human') this.human.score += 1;
     if (this.roundWinner === 'computer') this.computer.score += 1;
   },
+  updateWinner() {
+    if (this.human.score === this.maxScore) {
+      this.human.wins += 1;
+    } else if (this.computer.score === this.maxScore) {
+      this.computer.wins += 1;
+    }
+  },
   updatePlayerHistory() {
+    const WIN_NUMBER = 2;
+    const LOSS_NUMBER = 0;
+    const TIE_NUMBER = 1;
     let movesArrayHuman = this.human.moves;
     let movesArrayComputer = this.computer.moves;
     if (this.roundWinner === 'human') {
-      movesArrayHuman[movesArrayHuman.length - 1].push(2);
-      movesArrayComputer[movesArrayComputer.length - 1].push(0);
+      movesArrayHuman[movesArrayHuman.length - 1].push(WIN_NUMBER);
+      movesArrayComputer[movesArrayComputer.length - 1].push(LOSS_NUMBER);
     } else if (this.roundWinner === 'computer') {
-      movesArrayHuman[movesArrayHuman.length - 1].push(0);
-      movesArrayComputer[movesArrayComputer.length - 1].push(2);
+      movesArrayHuman[movesArrayHuman.length - 1].push(LOSS_NUMBER);
+      movesArrayComputer[movesArrayComputer.length - 1].push(WIN_NUMBER);
     } else {
-      movesArrayHuman[movesArrayHuman.length - 1].push(1);
-      movesArrayComputer[movesArrayComputer.length - 1].push(1);
+      movesArrayHuman[movesArrayHuman.length - 1].push(TIE_NUMBER);
+      movesArrayComputer[movesArrayComputer.length - 1].push(TIE_NUMBER);
     }
   },
   whichMoveWon(move1, move2) {
@@ -216,72 +230,85 @@ const RPSGame = {
       return `move1`;
     } else return `move2`;
   },
-  displayGoodbyeMessage() {
-    console.log('Thanks for playing RPS! Goodbye!');
-  },
   playAgain() {
-    console.log('Start new game? (y/n)');
+    console.log('Press enter to start new game. (Press "n" and "enter" to exit)');
     let answer = rlSync.question();
-    return answer.toLowerCase()[0] === 'y';
+    console.clear();
+    return answer.toLowerCase()[0] !== 'n';
   },
   playNextRound() {
-    console.log('Play next round? (y/n)');
+    console.log('Press enter to play next round. (Press "n" and "enter" to exit)');
     let answer = rlSync.question();
-    return answer.toLowerCase()[0] === 'y';
-  },
-  checkGameWinner() {
-    if (this.human.score === this.maxScore) return 'Human';
-    if (this.computer.score === this.maxScore) return 'Computer';
-    return '';
-  },
-  updateWinner() {
-    if (this.human.score === this.maxScore) {
-      this.human.wins += 1;
-    } else if (this.computer.score === this.maxScore) {
-      this.computer.wins += 1;
-    }
-  },
-  displayScore() {
-    console.log(`Player Score: ${this.human.score} | Computer Score: ${this.computer.score}`);
+    console.clear();
+    return answer.toLowerCase()[0] !== 'n';
   },
   resetPlayerScore() {
     this.human.resetScore();
     this.computer.resetScore();
   },
-  displayGameWinner() {
-    console.log(`\n${this.checkGameWinner()} wins!\n`);
-    console.log(`Your wins: ${this.human.wins} | Computer wins: ${this.computer.wins}`);
+  updateAndReset() {
+    this.updateWinner();
+    this.displayGameWinner();
+    this.resetPlayerScore();
   },
-  displayMoveHistory() {
-    console.log(`\nHuman move history: ${this.human.moves.slice(-5).map(el => el[0]).join(', ')}`);
-    console.log(`Computer move history: ${this.computer.moves.slice(-5).map(el => el[0]).join(', ')}\n`);
+  activateCheats() {
+    this.human.isAI && console.log('Your AI:(Spam/hold "enter" to let it play for you!)') || this.human.displayChoiceWeights();
+    this.computer.isAI && console.log('Opponent AI:') || this.computer.displayChoiceWeights();
   },
   play() {
-    this.displayWelcomeMessage();
     while (true) {
+      this.displayMoveHistory();
+      if (this.cheats) this.activateCheats();
       this.human.choose();
       this.computer.choose();
       this.displayRoundWinner();
       this.updatePlayerScores();
-      this.displayMoveHistory();
       this.updatePlayerHistory();
       this.displayScore();
       if (this.checkGameWinner() || !this.playNextRound()) {
-        this.updateWinner();
-        this.displayGameWinner();
-        this.resetPlayerScore();
+        this.updateAndReset();
         break;
       }
     }
     if (this.playAgain()) {
       this.play();
-    } else {
-      this.displayGoodbyeMessage();
+    } else this.displayGoodbyeMessage();
+  },
+  start() {
+    this.displayWelcomeMessage();
+    this.customizeSettings();
+    this.play();
+  },
+  validateChoice(question) {
+    let result = rlSync.question(question);
+    while (result.toLowerCase() !== 'y' && result.toLowerCase() !== 'n') {
+      console.log('Invalid choice, pick again');
+      result = rlSync.question(`Please enter 'y' or 'n': `);
     }
-  }
+    return result.toLowerCase();
+  },
+  customizeSettings() {
+    let customize = this.validateChoice('Customize settings? (y/n): ');
+    if (customize === 'n') return;
+
+    let maxScore = Number(rlSync.question('Score per round? (Enter a round number): '));
+    while (!Number.isInteger(maxScore)) {
+      console.log('Invalid choice, pick again');
+      maxScore = Number(rlSync.question(`Please enter a round number: `));
+    }
+    this.maxScore = maxScore;
+    let activateCheats = this.validateChoice('Activate cheats? (See what opponent is most likely to pick!) (y/n): ');
+    if (activateCheats === 'y') this.cheats = true;
+
+    let playerOrAI = this.validateChoice('Let AI play for you? (y/n): ');
+    if (playerOrAI === 'y') {
+      this.human = createComputer();
+      console.log('\nAI INITALIZED. SPAM/HOLD "ENTER" KEY TO WATCH MOVES UNFOLD.\n');
+    }
+  },
 };
 
-RPSGame.play();
+RPSGame.start();
 
 /**
  * I: History of moves, win rate with move
