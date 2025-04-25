@@ -14,13 +14,15 @@ Explore both options and see which works better.
  */
 /**
  * Keep track of a history of moves
-As long as the user doesn't quit, keep track of a history of moves by both the human and computer.
-Which data structure will you use? Will you use a new object or an existing object?
+As long as the user doesn't quit, keep track of a history of
+moves by both the human and computer.
+Which data structure will you use? Will you use a new object or an existing
+object?
 How will you display it?
 
 Nouns:
 1. Moves
-2. 
+2.
  */
 function createPlayer() {
   return {
@@ -66,22 +68,87 @@ function createComputer() {
       (acc, el) => {
         acc[el] = (1 / choicesArr.length);
         return acc;
-      }, 
+      },
       {}),
+    winRates: null,
+    distribution: null,
     choose() {
-      this.adjustWeights();
+      if (this.moves.length % 2 === 0) {
+        this.updateWinRates();
+        this.adjustWeights();
+        this.calculateChoiceDistribution();
+        // console.log('win rates:', this.winRates);
+        // console.log('Choice weights: ', this.choiceWeights);
+      }
+      let choice;
       const choices = [...choicesArr];
-      let randomIndex = Math.floor(Math.random() * choices.length);
-      let choice = choices[randomIndex]
+      let randomPercent = (Math.random());
+      //Object values of distribution [0, 16, 40, etc.]
+      //find index where random percent <= distribution
+      // console.log(this.distribution);
+      let choiceIdx = this.distribution.findIndex((num) => randomPercent <= num);
+      choice = choices[choiceIdx];
       this.move = choice;
       this.moves.push([choice]);
     },
-    adjustWeights() {
-      if (this.moves.length % 5 === 0) {
-        //If 5 moves have passed, adjust the weights based on below formula
-        //One amendment is, if length of filtered array is > 15, only evaluate last 15 moves
-        //
+    updateWinRates() {
+      let filteredMoves = this.moves.filter((moveArr) => moveArr[1] !== 1);
+      if (filteredMoves.length > 15) filteredMoves = filteredMoves.slice(-15);
+      this.winRates = this.evaluateWinRate(filteredMoves);
+    },
+    evaluateWinRate(moveArray) {
+      let moveObject = moveArray.reduce((acc, el) => {
+        acc[el[0]] = (acc[el[0]] || [0, 0]);
+        acc[el[0]][0] += 1;
+        // console.log(acc);
+        if (el[1] === 2) {
+          // console.log(acc);
+          acc[el[0]][1] += 1;
+        }
+        return acc;
+      }, {});
+      // console.log(moveObject);
+      for (let key in moveObject) {
+        moveObject[key] = moveObject[key][1] / moveObject[key][0];
       }
+      // console.log(moveObject);
+      return moveObject;
+    },
+    adjustWeights() {
+      let winRates = this.winRates; //Example: {lizard: 0.33, paper: 1}
+      let weights = this.choiceWeights; //Example: {lizard: 0.2, paper: 0.2}
+      for (let move in winRates) {
+        if (winRates[move] >= 0.6) {
+          for (let otherMoves in weights) {
+            if (move === otherMoves) continue;
+            if (weights[otherMoves] >= 0.09) {
+              weights[otherMoves] -= 0.01;
+              weights[move] += 0.01;
+            }
+          }
+        } else if (winRates[move] <= 0.4) {
+          for (let otherMoves in weights) {
+            if (move === otherMoves) continue;
+            if (weights[move] >= 0.05) {
+              weights[otherMoves] += 0.01;
+              weights[move] -= 0.01;
+            }
+          }
+        }
+      }
+    },
+    calculateChoiceDistribution() {
+      let weights = this.choiceWeights;
+      let distribution = {};
+      let previousMove = null;
+      for (let move in weights) {
+        // console.log(move);
+        // console.log(weights[move]);
+        distribution[move] = Number(distribution[previousMove] ?? 0) + weights[move];
+        previousMove = move;
+      }
+      // console.log(distribution);
+      this.distribution = Object.values(distribution);
     }
   };
 
@@ -103,16 +170,15 @@ const RPSGame = {
 
     console.log(`You chose: ${this.human.move}`);
     console.log(`Computer chose: ${this.computer.move}`);
-    console.log('choice weights: ', this.computer.choiceWeights);
 
     let winner = this.whichMoveWon(humanMove, computerMove);
 
     if (winner === 'move1') {
       console.log('You win this round!');
-      this.roundWinner = 'human'
+      this.roundWinner = 'human';
     } else if (winner === 'move2') {
       console.log('Computer wins this round!');
-      this.roundWinner = 'computer'
+      this.roundWinner = 'computer';
     } else {
       console.log("It's a tie");
       this.roundWinner = null;
@@ -135,7 +201,6 @@ const RPSGame = {
       movesArrayHuman[movesArrayHuman.length - 1].push(1);
       movesArrayComputer[movesArrayComputer.length - 1].push(1);
     }
-    console.log(movesArrayHuman);
   },
   whichMoveWon(move1, move2) {
     if (move1 === move2) return 'tie';
@@ -184,8 +249,8 @@ const RPSGame = {
     console.log(`Your wins: ${this.human.wins} | Computer wins: ${this.computer.wins}`);
   },
   displayMoveHistory() {
-    console.log(`\nHuman move history: ${this.human.moves.join(', ')}`);
-    console.log(`Computer move history: ${this.computer.moves.join(', ')}\n`);
+    console.log(`\nHuman move history: ${this.human.moves.slice(-5).map(el => el[0]).join(', ')}`);
+    console.log(`Computer move history: ${this.computer.moves.slice(-5).map(el => el[0]).join(', ')}\n`);
   },
   play() {
     this.displayWelcomeMessage();
@@ -219,25 +284,25 @@ RPSGame.play();
  * O: Adjusted weights
  * //[move, win/loss/tie] (0 === loss, 1 === tie, 2 === win)
  * [[r, 0], [r, 1], [p, 1]]
- * 
+ *
  * rock, paper, scissors, lizard, spock (default weight: 0.2 for all)
  * After move history >= 5, assess win/loss rate
- * 
+ *
  * if win rate >= 60%, add 4, subtract 1 from other weights
  * if win rate <= 40%, subtract 4, add 1 to other weights
- * 
+ *
  * r: .2
  * p: .2
  * s: .2
- * 
+ *
  * r >= 60% so r --> .24, p --> .19, s --> .19
- * 
+ *
  * What if weight for something is at 0?
- * 
+ *
  * How about a minmimum weight of .05
- * 
+ *
  * So if a weight === .05, don't subtract from it, and add amount goes down by 1
- * 
+ *
  * 1. Evaluate moves array length
  * 2. If length < 5 ignore
  * 3. If length % 5 === 0 //Every 5 moves, re-evaluate
@@ -252,5 +317,5 @@ RPSGame.play();
  * -------If below .09, skip
  * -------Otherwise, subtract 0.4 and add 0.1 to other moves
  * 8. Return amended weight object
- * 
+ *
  */
