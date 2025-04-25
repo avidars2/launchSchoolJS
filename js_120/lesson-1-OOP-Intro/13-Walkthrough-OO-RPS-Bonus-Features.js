@@ -44,14 +44,21 @@ function createHuman() {
 
     choose() {
       const choices = ['rock', 'paper', 'scissors', 'lizard', 'spock'];
+      const choiceObj = {
+        r: 'rock',
+        p: 'paper',
+        sc: 'scissors',
+        l: 'lizard',
+        sp: 'spock',
+      };
       let choice;
       while (true) {
-        choice = rlSync.question(`Please choose ${choices.join(', ')}:\n`);
-        if (choices.includes(choice.toLowerCase())) break;
+        choice = rlSync.question(`Please choose ${choices.join(', ')} or shorthand ${Object.keys(choiceObj).join(', ')}:\n`);
+        if (choices.includes(choice.toLowerCase()) || Object.keys(choiceObj).includes(choice.toLowerCase())) break;
         console.log('Invalid choice, pick again');
       }
-      this.move = choice;
-      this.moves.push([choice]);
+      this.move = choice.length < 3 ? choiceObj[choice.toLowerCase()] : choice.toLowerCase();
+      this.moves.push([this.move]);
     },
   };
 
@@ -73,12 +80,12 @@ function createComputer() {
     winRates: null,
     distribution: null,
     choose() {
-      if (this.moves.length % 2 === 0) {
+      if (this.moves.length % 5 === 0) {
         this.updateWinRates();
         this.adjustWeights();
         this.calculateChoiceDistribution();
         // console.log('win rates:', this.winRates);
-        // console.log('Choice weights: ', this.choiceWeights);
+        console.log('Choice weights: ', this.choiceWeights);
       }
       let choice;
       const choices = [...choicesArr];
@@ -142,12 +149,9 @@ function createComputer() {
       let distribution = {};
       let previousMove = null;
       for (let move in weights) {
-        // console.log(move);
-        // console.log(weights[move]);
         distribution[move] = Number(distribution[previousMove] ?? 0) + weights[move];
         previousMove = move;
       }
-      // console.log(distribution);
       this.distribution = Object.values(distribution);
     }
   };
