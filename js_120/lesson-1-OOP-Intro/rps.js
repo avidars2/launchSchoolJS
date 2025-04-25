@@ -39,7 +39,6 @@ function createHuman() {
   };
 
   return Object.assign(playerObject, humanObject);
-
 }
 
 function createComputer() {
@@ -61,15 +60,10 @@ function createComputer() {
         this.updateWinRates();
         this.adjustWeights();
         this.calculateChoiceDistribution();
-        // console.log('win rates:', this.winRates);
-        // console.log('Choice weights: ', this.choiceWeights);
       }
       let choice;
       const choices = [...choicesArr];
       let randomPercent = (Math.random());
-      //Object values of distribution [0, 16, 40, etc.]
-      //find index where random percent<= distribution
-      // console.log(this.distribution);
       let choiceIdx = this.distribution.findIndex((num) => randomPercent <= num);
       choice = choices[choiceIdx];
       this.move = choice;
@@ -99,8 +93,7 @@ function createComputer() {
       return moveObject;
     },
     adjustWeights() {
-      let winRates = this.winRates; //Example: {lizard: 0.33, paper: 1}
-      let weights = this.choiceWeights; //Example: {lizard: 0.2, paper: 0.2}
+      let [winRates, weights] = [this.winRates, this.choiceWeights];
       for (let move in winRates) {
         if (winRates[move] >= 0.6) {
           for (let otherMoves in weights) {
@@ -315,44 +308,3 @@ const RPSGame = {
 };
 
 RPSGame.start();
-
-/**
- * I: History of moves, win rate with move
- * O: Adjusted weights
- * //[move, win/loss/tie] (0 === loss, 1 === tie, 2 === win)
- * [[r, 0], [r, 1], [p, 1]]
- *
- * rock, paper, scissors, lizard, spock (default weight: 0.2 for all)
- * After move history >= 5, assess win/loss rate
- *
- * if win rate >= 60%, add 4, subtract 1 from other weights
- * if win rate <= 40%, subtract 4, add 1 to other weights
- *
- * r: .2
- * p: .2
- * s: .2
- *
- * r >= 60% so r --> .24, p --> .19, s --> .19
- *
- * What if weight for something is at 0?
- *
- * How about a minmimum weight of .05
- *
- * So if a weight === .05, don't subtract from it, and add amount goes down by 1
- *
- * 1. Evaluate moves array length
- * 2. If length < 5 ignore
- * 3. If length % 5 === 0 //Every 5 moves, re-evaluate
- * 4. Get a filtered list of wins and loss moves
- * 5. From the filtered list, evaluate win/loss rate for each move
- * 6. If win rate for a move >= 60%
- * -----Check weights for others
- * ------If above .05, subtract .01 and add .01 to bank
- * ------Add banked amount to starting move
- * 7. if win rate for a move <= 40 %
- * -----Check weight of current move
- * -------If below .09, skip
- * -------Otherwise, subtract 0.4 and add 0.1 to other moves
- * 8. Return amended weight object
- *
- */
