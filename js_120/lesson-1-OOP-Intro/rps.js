@@ -56,7 +56,7 @@ function createComputer() {
     distribution: null,
     isAI: true,
     choose() {
-      if (this.moves.length % 5 === 0) {
+      if (this.moves.length % 1 === 0) {
         this.updateWinRates();
         this.adjustWeights();
         this.calculateChoiceDistribution();
