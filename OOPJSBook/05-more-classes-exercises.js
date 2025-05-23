@@ -160,7 +160,7 @@
  * The setters should raise a RangeError if the width or 
  * height is not a positive number. Add a getter for area 
  * to compute the area of the rectangle (width * height).
- */}
+ */
 
 class Rectangle {
   #width;
@@ -220,3 +220,37 @@ try {
 } catch (e) {
   console.log(e); // RangeError: height must be positive
 }
+
+}
+
+{/**
+Create a MathUtils class with static methods add, subtract, 
+multiply, and divide. These methods should perform basic 
+arithmetic operations.
+*/}
+
+class MathUtils {
+  static add(num1, num2) {
+    return num1 + num2;
+  }
+  static multiply(num1, num2) {
+    return num1 * num2;
+  }
+  static subtract(num1, num2) {
+    return num1 - num2;
+  }
+  static divide(num1, num2) {
+    if (num2 === 0) {
+      throw new RangeError('Division by zero');
+    } else {
+      return num1 / num2;
+    }
+  }
+}
+
+console.log(MathUtils.add(5, 3));       // 8
+console.log(MathUtils.subtract(10, 4)); // 6
+console.log(MathUtils.multiply(6, 7));  // 42
+console.log(MathUtils.divide(20, 5));   // 4
+console.log(MathUtils.divide(10, 0));   // RangeError: Division by zero
+
