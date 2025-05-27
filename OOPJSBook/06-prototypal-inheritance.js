@@ -1,3 +1,4 @@
+
 class Animal {
   constructor(type) {
     this.type = type;
@@ -147,3 +148,26 @@ let foo = () => console.log('map');
 // let moopy = new foo();
 // console.log(Object.getPrototypeOf(moopy));
 // console.log(Object.getPrototypeOf(moopy) === foo.prototype);
+
+
+{}
+
+class Animals {
+  constructor() {
+    this.blood = 'warm';
+  }
+}
+
+class Cats extends Animals {
+  constructor(name) {
+    super();
+    this.name = name;
+  }
+}
+
+let cheddar = new Cats();
+
+console.log(cheddar.blood);
+console.log(Object.getPrototypeOf(cheddar) === Cats.prototype); //true
+console.log(Object.getPrototypeOf(Cats) === Animals); //true
+console.log(Object.getPrototypeOf(Cats.prototype) === Animals.prototype); //true
