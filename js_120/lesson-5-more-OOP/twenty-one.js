@@ -208,31 +208,6 @@ class TwentyOneGame {
     this.displayGameResults();
     this.displayGoodbyeMessage();
 
-    /**Game loop
-     *
-     * Check if player has >= $1 && < $10
-     * If so, continue. Otherwise, display win/loss screen
-     *
-     *
-     * start: deal cards out
-     *
-     * Game loop 1-2-1
-     *  players turn
-     *  show 1 dealers card 1 hidden
-     *  show players cards
-     *  game action: hit/stay
-     *  bust --> breaks all loops
-     * Game loop 1-2-2
-     *  dealers turn
-     *  game action: hit/stay
-     *  bust --> breaks all loops
-     *
-     * Exit loop 1-2
-     *
-     * Reveal cards, evaluate results
-     *
-     * --
-     */
   }
 
   resetPlayers() {
