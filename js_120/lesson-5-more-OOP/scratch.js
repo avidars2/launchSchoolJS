@@ -49,4 +49,103 @@
   }
 
   let hand = ["A", "5", "A"];
-  console.log(getHandValue(hand))
+  // console.log(getHandValue(hand));
+
+  let obj = {
+    hi: 5,
+    hey: function() {
+      return 'meep';
+    },
+    ho() {
+      return 'moop';
+    }
+  }
+
+
+let jerry = {
+  hai() {
+    return 'hai';
+  }
+}
+class A {
+  constructor() {}
+
+  hi() {
+    return 'hi';
+  }
+
+}
+
+class B extends A {
+  constructor() {
+    super();
+  }
+  ho() {
+    return 'ho';
+  }
+}
+
+class C extends B {
+  constructor() {
+    super();
+  }
+
+}
+
+let see = new C();
+
+// console.log(Object.getPrototypeOf(see) === C.prototype);
+// console.log(A.prototype.hasOwnProperty('hi'));
+// console.log(B.prototype instanceof A);
+// console.log(Object.getPrototypeOf(B.prototype) === A.prototype);
+// console.log(see.hi());
+// console.log('hi' in see);
+// Object.setPrototypeOf(B.prototype, jerry);
+// console.log('hi' in see);
+
+function Animal() {}
+function Cat() {}
+let ani = new Animal();
+// Cat.prototype = ani;
+Cat.prototype = ani;
+let fluffy = new Cat();
+console.log(fluffy instanceof Animal);
+
+// console.log(`fluffy[[prototype]] === Cat.prototype`, Object.getPrototypeOf(fluffy) === Cat.prototype);
+// Cat.prototype = see;
+// console.log(`fluffy[[prototype]] === Cat.prototype after re-assign`,Object.getPrototypeOf(fluffy) === Cat.prototype);
+// Cat.prototype = ani;
+// console.log(`fluffy[[prototype]] === Cat.prototype after re-assign 2`,Object.getPrototypeOf(fluffy) === Cat.prototype);
+
+
+
+
+function instanceOF(instance, constructor) {
+  let proto = Object.getPrototypeOf(instance);
+  console.log(proto, constructor.prototype);
+   if (constructor.prototype === proto) return true
+   if (proto === null) return false;
+   return instanceOF(proto, constructor);
+}
+
+// console.log(instanceOF(fluffy, Animal));
+// console.lo
+// console.log(Object.getPrototypeOf(fluffy));
+hi = 5;
+// console.log(Object.getOwnPropertyNames(global).includes('instanceOF'));
+// console.log(hi in global);
+
+
+
+// Object.getOwnPropertyNames(global).forEach((n) => console.log(n));
+
+this.hi = 5;
+
+function doSomething() {
+  console.log(this === global);
+  console.log(Object.getOwnPropertyNames(this));
+  return 'hi';
+}
+console.log(doSomething.call(this));
+
+
