@@ -78,11 +78,32 @@
 // // setTimeout(() => {let x = 10000000000; while(x > 0) {x--}}, 4500);
 // console.log(clearInterval());
 
-async function timerTest(params) {
-  let x = await setTimeout(() => 5, 100);
-  return x;
+// async function timerTest(params) {
+//   let x = await setTimeout(() => 5, 100);
+//   return x;
+// }
+
+// setTimeout(() => {
+//   setTimeout(() => {console.log(setTimeout(() => 5, 100))}, 200);
+// })
+
+console.log(hi()); //logs 5 due to function declaration hoisting to top of scope
+var hi = 5; //re-assigns 'hi' to 5', 'var' is discarded due to function 'hi'
+
+
+function hi() { //hoisted to top of scope
+  return 5;
 }
 
-setTimeout(() => {
-  setTimeout(() => {console.log(setTimeout(() => 5, 100))}, 200);
-})
+// console.log(hi()); //throws error due to 'hi' re-assignment to 5
+
+function sum(...args) {
+  let values = Array.prototype.slice.call(arguments);
+  console.log(arguments);
+
+  return args.reduce(function(a, b) {
+    return a + b;
+  });
+}
+
+console.log(sum(1, 4, 5, 6)); // 16
