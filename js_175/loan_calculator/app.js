@@ -1,7 +1,7 @@
 const HTTP = require('http');
 const PORT = 3002;
-
 const URL = require('url').URL;
+const HANDLEBARS = require('handlebars');
 
 
 // Query parameters provides inputs
@@ -40,6 +40,8 @@ function getHTMLStartEnd() {
       }
 
       article {
+        background-color: rgba(255, 0, 0, 0.34);
+        border: 25px solid green;
         width: 100%;
         max-width: 40rem;
         margin: 0 auto;
