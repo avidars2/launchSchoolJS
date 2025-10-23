@@ -1,0 +1,17 @@
+extends layout.pug
+
+block appContent
+    h1 Account Page
+    h2 You have: #{money}
+    if !recentTransaction
+      p No recent transactions.
+    else 
+      p Recent transaction.
+    button logout
+    ul
+      - for (var x = 0; x < 2; x++)
+        li #{Number(money.slice(1)) + x}
+      - var n = 0;
+    ul
+      while n < 4
+        li= n++
