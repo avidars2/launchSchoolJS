@@ -1,0 +1,429 @@
+#!/usr/bin/env node
+
+const {Client} = require('pg');
+const rlSync = require('readline-sync');
+
+// let client = new Client({database: 'expenses', user: 'avi', password: 'avi'});
+
+
+// async function logQuery(queryText) {
+//   client.connect().catch(e => logAndExit(e));
+//   let data;
+//   try {
+//     data = await client.query(queryText);
+//   } catch (e) {
+//     logAndExit(e);
+//   }
+
+//   let rows = data.rows;
+
+//   let maxColumnLengths = {}
+
+//   rows.forEach(row => {
+//     for (let columnName in row) {
+//       if (maxColumnLengths[columnName] === undefined) maxColumnLengths[columnName] = 0;
+
+//       let valueStr = String(row[columnName]);
+//       if (maxColumnLengths[columnName] < valueStr.length) {
+//         maxColumnLengths[columnName] = valueStr.length;
+//       }
+//     }
+  
+//   })
+
+//   let columnHeadersArr = [];
+//   for (let columnName in maxColumnLengths) {
+//     if (columnName.length > maxColumnLengths[columnName]) {
+//       maxColumnLengths[columnName] = columnName.length;
+//     }
+//     maxColumnLengths[columnName] += 1;
+
+//     columnHeadersArr.push(columnName.padStart(maxColumnLengths[columnName]));
+//   }
+
+//   console.log(columnHeadersArr.join(' | '));
+//   console.log('-'.repeat(columnHeadersArr.join(' | ').length));
+
+//   //For each row
+//   //Print each column separated by a `|`
+//   //Combine row values into an array
+//   ////Pad start them to maxColumnLength
+//   //Join them with a `|` delimiter
+
+
+//   rows.forEach(row => {
+//     let columnValuesArr = [];
+//     for (let columnName in row) {
+//       columnValuesArr.push(String(row[columnName]).padStart(maxColumnLengths[columnName]))
+//     }
+
+//     console.log(columnValuesArr.join(' | '));
+//   })
+
+//   client.end().catch((e) => logAndExit(e));
+// }
+
+// function escapeInputs(memo) {
+//   if (memo.includes("'")) {
+//     memo = memo.replaceAll("'", "''");
+//   }
+//   console.log("Cleaned memo", memo);
+
+//   return memo;
+
+// }
+
+// async function addExpense(amount, memo) {
+//   client.connect().catch(e => logAndExit(e));
+//   // memo = escapeInputs(memo);
+//   let query = `INSERT INTO expenses (amount, memo, created_on) VALUES ($1, $2, NOW())`;
+//   const values = [amount, memo];
+//   console.log(query, values);
+//   try {
+//     await client.query(query);
+//   } catch(e) {
+//     logAndExit(e);
+//   }
+//   client.end().catch(e => logAndExit(e));
+// }
+
+// function logAndExit(rejectedPromiseErr) {
+//   console.log("Query failed", rejectedPromiseErr);
+//   client.end().catch(e => {console.log(e);});
+//   process.exit();  
+
+// }
+
+// function logHelp() {
+
+//   let helpMsg = 
+//   `An expense recording system
+
+// Commands:
+
+// add AMOUNT MEMO [DATE] - record a new expense
+// clear - delete all expenses
+// list - list all expenses
+// delete NUMBER - remove expense with id NUMBER
+// search QUERY - list expenses with a matching memo field`;
+
+// console.log(helpMsg);
+
+// }
+
+
+// function processArguments() {
+//   let argList = process.argv.filter(arg => (!arg.includes('/home/avi/')));
+//   let validArguments = ['list', 'help', 'add', 'test'];
+
+//   // console.log(argList);
+//   if (argList.length === 0) {
+//     logHelp();
+//     return;
+//   }
+
+//   if (!argList.some(arg => validArguments.includes(arg))) {
+//     console.log("invalid arguments");
+//     logHelp();
+//     return;
+//   }
+
+
+//   if (argList.includes("list")) {
+//     logQuery('TABLE expenses ORDER BY created_on ASC');
+//   } else if (argList.includes("add")) {
+//     if (argList[0] !== "add") {
+//       console.log("add must be first command");
+//       return;
+//     }
+//     let amount = argList[1];
+//     let memo = argList[2];
+//     if (!amount || !memo) {
+//       console.log(`Amount and memo must be provided`);
+//       return;
+//     }
+//     console.log(`adding ${amount} for ${memo}...`);
+//     addExpense(amount, memo);
+//   } else if (argList.includes("test")) {
+//     escapeInputs(argList[1]);
+//   }
+
+// }
+
+// processArguments();
+
+/**
+ * 
+ * 
+ * 
+ * Database
+ */
+
+class CLI {
+  static HELP() {
+    let helpMsg = 
+      `An expense recording system
+
+Commands:
+
+add AMOUNT MEMO [DATE] - record a new expense
+clear - delete all expenses
+list - list all expenses
+delete NUMBER - remove expense with id NUMBER
+search QUERY - list expenses with a matching memo field`;
+  
+      return helpMsg;
+  }
+
+  constructor() {
+    this.argList = [];
+    this.validArguments = ['list', 'help', 'add', 'test', 'search', 'delete'];
+    this.expenseData = new ExpenseData();
+  }
+
+  run(argList) {
+    this.argList = argList.filter(arg => (!arg.includes('/home/avi/')));
+    if (this.argList.length === 0 || !this.argList.some(arg => this.validArguments.includes(arg))) {
+      this.displayHelp();
+      // this.expenseData.close();
+      return;
+    }
+
+    if (this.argList.includes("list")) {
+      this.expenseData.listExpenses();
+    } else if (this.argList.includes("add")) {
+      if (this.argList[0] !== "add") {
+        console.log("add must be first command");
+        return;
+      }
+      let amount = this.argList[1];
+      let memo = this.argList[2];
+      if (!amount || !memo) {
+        console.log(`Amount and memo must be provided`);
+        return;
+      }
+      console.log(`adding ${amount} for ${memo}...`);
+      this.expenseData.addExpense(amount, memo);
+    } else if (this.argList.includes("search")) {
+      if (this.argList[0] !== "search") {
+        console.log("search must be first command");
+        return;
+      }
+
+      let searchTerm = this.argList[1];
+      this.expenseData.searchQuery(searchTerm);
+
+    } else if (this.argList.includes("delete")) {
+      if (this.argList[0] !== "delete") {
+        console.log("delete must be first command");
+        return;
+      }
+
+      let searchTerm = this.argList[1];
+      let result = this.expenseData.deleteExpense(searchTerm);
+
+    } else if (this.argList.includes("clear")) {
+      if (this.argList[0] !== "clear") {
+        console.log("clear must be first command");
+        return;
+      }
+      let check = rlSync.question(`This will remove all expenses. Are you sure? (enter y to confirm)\n`).toLowerCase();
+      if (check !== 'y') {
+        console.log('Cancelled');
+        return;
+      }
+      this.expenseData.deleteAllExpenses();
+    } else if (this.argList.includes("test")) {
+      if (this.argList[0] === "test") {
+        console.log('Calling cTIFNE')
+        this.expenseData.createTableIfNotExisting();
+        return;
+      }
+    }
+  }
+
+  displayHelp() {
+    console.log(CLI.HELP());
+  }
+
+  // Its primary responsibilities will be handling anything about the program that
+//  is specific to its command-line interface. Once the 
+// arguments have been processed, the CLI class will need
+//  to determine which action needs to be performed in relation to those arguments.
+}
+
+class ExpenseData {
+  constructor() {
+    this.client = new Client({database: 'expenses', user: 'avi', password: 'avi'});
+    this.client.connect().catch(e => this.logAndExit(e));
+    this.createTableIfNotExisting();
+  }
+
+  close() {
+    this.client.end();
+  }
+
+  listExpenses() {
+    let displayRowCount = (data) => {
+      console.log(`There are ${data.rows.length ? data.rows.length : "no"} expenses.`)
+    }
+    this.logQuery('TABLE expenses ORDER BY created_on ASC', [], displayRowCount);
+  }
+
+  async logQuery(queryText, values=[], callback= () => {}) {
+    // this.client.connect().catch(e => this.logAndExit(e));
+    let data;
+    try {
+      data = await this.client.query(queryText, values);
+      callback(data);
+    } catch (e) {
+      this.logAndExit(e);
+    }
+
+    let rows = data.rows;
+
+    let maxColumnLengths = {}
+
+    rows.forEach(row => {
+      for (let columnName in row) {
+        if (maxColumnLengths[columnName] === undefined) maxColumnLengths[columnName] = 0;
+
+        let valueStr = String(row[columnName]);
+        if (maxColumnLengths[columnName] < valueStr.length) {
+          maxColumnLengths[columnName] = valueStr.length;
+        }
+      }
+    
+    })
+
+    let columnHeadersArr = [];
+    for (let columnName in maxColumnLengths) {
+      if (columnName.length > maxColumnLengths[columnName]) {
+        maxColumnLengths[columnName] = columnName.length;
+      }
+      maxColumnLengths[columnName] += 1;
+
+      columnHeadersArr.push(columnName.padStart(maxColumnLengths[columnName]));
+    }
+
+    console.log(columnHeadersArr.join(' | '));
+    console.log('-'.repeat(columnHeadersArr.join(' | ').length));
+
+    rows.forEach(row => {
+      let columnValuesArr = [];
+      for (let columnName in row) {
+        columnValuesArr.push(String(row[columnName]).padStart(maxColumnLengths[columnName]))
+      }
+
+      console.log(columnValuesArr.join(' | '));
+    })
+
+    this.client.end().catch((e) => this.logAndExit(e));
+  }
+
+  async searchQuery(memo) {
+    let displayRowCount = (data) => {
+      console.log(`There are ${data.rows.length ? data.rows.length : "no"} expenses.`)
+    }
+    let query = `SELECT * FROM expenses WHERE memo ILIKE $1`;
+    const values = [`%${memo}%`];
+    await this.logQuery(query, values, displayRowCount);
+
+  }
+
+  async getRowOnID(id) {
+    let query = 'SELECT * FROM expenses WHERE id = $1';
+    let data;
+    try {
+      data = await this.client.query(query, [id]);
+    } catch (e) {
+      this.logAndExit(e);
+    }
+    // console.log(data.rows[0]);
+    return data.rows[0];
+
+  }
+  async addExpense(amount, memo) {
+    // this.client.connect().catch(e => this.logAndExit(e));
+    // memo = escapeInputs(memo);
+    let query = `INSERT INTO expenses (amount, memo, created_on) VALUES ($1, $2, NOW())`;
+    const values = [amount, memo];
+    console.log(query, values);
+    try {
+      await this.client.query(query, values);
+    } catch(e) {
+      this.logAndExit(e);
+    }
+    this.client.end().catch(e => this.logAndExit(e));
+  }
+
+  async deleteExpense(id) {
+    // await this.client.connect().catch(e => this.logAndExit(e));
+
+    let result = await this.getRowOnID(id);
+    if (!result) {
+      console.log(`There is no expense with the id '${id}'`);
+    } else {
+      await this.client.query('DELETE FROM expenses WHERE id = $1', [id]).catch(e => this.logAndExit(e));
+      console.log(`${result.memo} for ${result.amount} on id ${id} deleted`);
+    }
+
+    await this.client.end().catch(e => this.logAndExit(e));
+
+    
+  }
+
+  async deleteAllExpenses() {
+
+    // await this.client.connect().catch(e => this.logAndExit(e));
+
+    await this.client.query('DELETE FROM expenses').catch(e => this.logAndExit(e));
+    console.log('All expenses have been deleted')
+
+    await this.client.end().catch(e => this.logAndExit(e)); 
+  }
+
+  async createTableIfNotExisting() {
+    // await this.client.connect().catch(e => this.logAndExit(e));
+
+    let result = await this.client.query('TABLE expenses')
+    .catch(e => {
+      try {
+        console.log("Creating new table");
+        this.createNewTable();
+      } catch(e) {
+        console.log("Table creation failed");
+        this.logAndExit(e);
+      }
+    });
+
+
+
+  }
+
+  async createNewTable() {
+    let query = `
+CREATE TABLE expenses (
+id SERIAL PRIMARY KEY,
+amount NUMERIC(6, 2) NOT NULL CHECK (amount > 0.00),
+memo TEXT NOT NULL,
+created_on date NOT NULL
+)
+`
+   await this.client.query(query);  
+  }
+
+  logAndExit(rejectedPromiseErr) {
+    console.log("Query failed", rejectedPromiseErr);
+    this.client.end().catch(e => {console.log(e);});
+    process.exit();  
+
+  }
+
+  //  Obtaining the expense data by querying the database and receiving the query results in response
+// Formatting and displaying those results by outputting them to the Terminal 
+}
+
+let cli = new CLI();
+
+cli.run(process.argv);
